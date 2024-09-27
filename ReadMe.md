@@ -43,7 +43,7 @@ I needed to use A100, could not use H100 with some pytorch and H100 issue.
 
 This is going to be run on K8S
 
-1. setting_up_paths<br>
+### 1. setting_up_paths<br>
     https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/setting_up_paths.md<br>
     nnUNet_results<br>
     nnUNet_preprocessed<br>
@@ -63,7 +63,7 @@ This is going to be run on K8S
         ├── ...<br>
 
 
-2. modify the json file for k8s based on '/rsrch7/home/ip_rsrch/wulab/Mori'<br>
+### 2. modify the json file for k8s based on '/rsrch7/home/ip_rsrch/wulab/Mori'<br>
     https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/set_environment_variables.md<br>
 
     RUN pip install nnunetv2<br>
@@ -71,7 +71,7 @@ This is going to be run on K8S
     ENV nnUNet_raw="/rsrch7/home/ip_rsrch/wulab/Mori/nnUnet2_Sep2024/nnUNet_raw"<br>
     ENV nnUNet_results="/rsrch7/home/ip_rsrch/wulab/Mori/nnUnet2_Sep2024/nnUNet_results"<br>
 
-3. Training<br>
+### 3. Training<br>
     https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/how_to_use_nnunet.md<br>
 
     #### Let's change these
@@ -89,8 +89,8 @@ This is going to be run on K8S
     CUDA_VISIBLE_DEVICES=0 nnUNetv2_train 101 3d_fullres 4<br>
 
 
-4. prediction<br>
-    # will be changed later!<br>
+### 4. prediction<br>
+    #### will be changed later!<br>
     nnUNetv2_predict \<br>
     -i /Data/nnUNet2/nnUNet_raw/Dataset501_LungTumorVessel/imagesTs \<br>
     -o /Data/nnUNet2/nnUNet_raw/Dataset501_LungTumorVessel/pred \<br>
@@ -103,13 +103,13 @@ This is going to be run on K8S
 
 
 
-5. K8s
+### 5. K8s
 
-    # Build the docker image<br>
+    #### Build the docker image<br>
     docker build -t nnunet2:msalehjahromi .<br>
     docker build --platform linux/x86_64 -t nnunet2:msalehjahromi .
 
-    # Push the docker image to hpcharbor.mdanderson.edu<br>
+    #### Push the docker image to hpcharbor.mdanderson.edu<br>
     docker login hpcharbor.mdanderson.edu<br>
     docker tag nnunet2:msalehjahromi hpcharbor.mdanderson.edu/msalehjahromi/nnunet2:msalehjahromi<br>
     docker push hpcharbor.mdanderson.edu/msalehjahromi/nnunet2:msalehjahromi 
@@ -120,22 +120,22 @@ This is going to be run on K8S
 kubectl config use-context msalehjahromi_yn-gpu-workload@research-prd<br>
 kubectl config use-context msalehjahromi_yn-cpu-workload@research-prd
 
-## Jason File
+### Jason File
 job-runner.sh /rsrch7/home/ip_rsrch/wulab/Mori/nnUnet2_Sep2024/nnUNet_raw/Dataset101_LungTumor/K8S/jason.yaml<br>
 kubectl delete job -n yn-gpu-workload msalehjahromi-gpu-nnunetv2
 
 
 
-## Training
-## Observing your GPU job(s)
+### Training
+### Observing your GPU job(s)
 kubectl get jobs -n yn-gpu-workload -l k8s-user=msalehjahromi<br>
 kubectl get pods -o wide -n yn-gpu-workload<br>
 
-## Deleting your GPU job(s)<br>
+### Deleting your GPU job(s)<br>
 kubectl delete job -n yn-gpu-workload msalehjahromi-gpu-nnunetv2
 
 
-## 101 --> 102 to 2000 epoch<br><br>
+### 101 --> 102 to 2000 epoch<br><br>
 0. main folder raw name: 101 to 102<br>
 1. in dataset.json, 101 to 102<br>
 2. in preprocess folder name: 101 to 102<br>
