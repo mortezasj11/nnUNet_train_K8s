@@ -1,0 +1,56 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: msalehjahromi-gpu-predict
+  namespace: yn-gpu-workload
+  labels:
+      k8s-user: msalehjahromi
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 60
+  template:
+    spec:
+      nodeSelector:
+        "nvidia.com/gpu.present": "true"
+        "nvidia.com/gpu.machine": "DGXA100-920-23687-2530-000"
+      securityContext:
+        runAsUser: 271030
+        runAsGroup: 600651
+        fsGroup: 600651
+      volumes:
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: '21474836480'
+        - name: ifp
+          persistentVolumeClaim:
+            claimName: msalehjahromi-gpu-rsrch7-home-ip-rsrch
+        - name: home
+          persistentVolumeClaim:
+            claimName: msalehjahromi-gpu-home
+      containers:
+        - name: main
+          image: hpcharbor.mdanderson.edu/nnunetv2/nnunetv2@sha256:4ab016ba4b356842be74fbf58159480598bfc015c8454339022aa0fcbfdc196d
+          command: ["/usr/bin/python3", "/rsrch1/ip/msalehjahromi/nnUnet2_Sep2024/nnUNet_raw/Dataset102_LungTumor/3_predict.py"]
+          args: []
+          workingDir: "/rsrch1/ip/msalehjahromi"
+          env:
+          - name: HOME
+            value: "/rsrch1/ip/msalehjahromi"
+          volumeMounts:
+            - name: shm
+              mountPath: "/dev/shm"      
+            - name: ifp
+              mountPath: "/rsrch7/home/ip_rsrch/wulab" 
+            - name: home
+              mountPath: "/rsrch1/ip/msalehjahromi/"    
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+              cpu: "64"
+            requests:
+              nvidia.com/gpu: "1"
+              cpu: "64"
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Never

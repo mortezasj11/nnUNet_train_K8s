@@ -1,0 +1,7 @@
+K8S/logs
+K8S/log/*.log
+
+imagesTr
+imagesTs
+labelsTr
+labelsTs
