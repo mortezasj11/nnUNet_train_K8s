@@ -10,11 +10,8 @@ docker push hpcharbor.mdanderson.edu/nnunetv2/nnunetv2:msalehjahromi<br>
 hpcharbor.mdanderson.edu/nnunetv2/nnunetv2@sha256:4ab016ba4b356842be74fbf58159480598bfc015c8454339022aa0fcbfdc196d<br>
 
 #### Important Notes
-- Ensure that nnUNet is installed inside the Docker container as specified in your .py file for proper functionality.(At least how I get it top work!)
+- Ensure that nnUNet is installed inside the Docker container as specified in your .py file for proper functionality. (At least this is how I get it to work!)
 - Use the A100 GPU for training due to compatibility issues with H100 for some PyTorch setups.
-
-
-
 
 
 
@@ -116,7 +113,7 @@ This is going to be run on K8S
     ```sh
     nnUNetv2_plan_and_preprocess -d 501 --verify_dataset_integrity
     ```
-    
+
     #### Train for each fold:
     For FOLD in [0, 1, 2, 3, 4], run:<br>
 
@@ -148,17 +145,16 @@ This is going to be run on K8S
 
 ### 5. K8s
 ```sh
-    #### Build the docker image
-    docker build -t nnunet2:msalehjahromi .
-    docker build --platform linux/x86_64 -t nnunet2:msalehjahromi .
+#### Build the docker image
+docker build -t nnunet2:msalehjahromi .
+docker build --platform linux/x86_64 -t nnunet2:msalehjahromi .
 
-    #### Push the docker image to hpcharbor.mdanderson.edu
-    docker login hpcharbor.mdanderson.edu
-    docker tag nnunet2:msalehjahromi hpcharbor.mdanderson.edu/msalehjahromi/nnunet2:msalehjahromi
-    docker push hpcharbor.mdanderson.edu/msalehjahromi/nnunet2:msalehjahromi 
+#### Push the docker image to hpcharbor.mdanderson.edu
+docker login hpcharbor.mdanderson.edu
+docker tag nnunet2:msalehjahromi hpcharbor.mdanderson.edu/msalehjahromi/nnunet2:msalehjahromi
+docker push hpcharbor.mdanderson.edu/msalehjahromi/nnunet2:msalehjahromi 
 
-
- kubectl config get-contexts 
+kubectl config get-contexts 
 
 kubectl config use-context msalehjahromi_yn-gpu-workload@research-prd<br>
 kubectl config use-context msalehjahromi_yn-cpu-workload@research-prd
@@ -166,8 +162,6 @@ kubectl config use-context msalehjahromi_yn-cpu-workload@research-prd
 ### Jason File
 job-runner.sh /rsrch7/home/ip_rsrch/wulab/Mori/nnUnet2_Sep2024/nnUNet_raw/Dataset101_LungTumor/K8S/jason.yaml<br>
 kubectl delete job -n yn-gpu-workload msalehjahromi-gpu-nnunetv2
-
-
 
 ### Training
 ### Observing your GPU job(s)
@@ -178,7 +172,7 @@ kubectl get pods -o wide -n yn-gpu-workload<br>
 kubectl delete job -n yn-gpu-workload msalehjahromi-gpu-nnunetv2
 ```
 
-### 101 --> 102 to 2000 epoch<br>
+### 6. which parts I change to train another nnUNET with 2000 101 --> 102 to 2000 epoch<br>
 0. main folder raw name: 101 to 102<br>
 1. in dataset.json, 101 to 102<br>
 2. in preprocess folder name: 101 to 102<br>
