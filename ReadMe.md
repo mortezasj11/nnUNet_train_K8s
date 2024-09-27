@@ -1,44 +1,67 @@
-
+# nnUNetv2 Setup and Usage Guide
 ## Dockerfile and image
-Reminder: I need to make image first in harbor and then push to it. <br>
-The combination of both the container and installing nnunet in .py file, make the nnuUNetv2 work here! (At least how I get it top work!)<br>
-
+#### Build and Push Docker Image
+Before running the setup, build the Docker image and push it to the harbor registry:
+```sh
 docker tag nnunetv2:msalehjahromi hpcharbor.mdanderson.edu/nnunetv2/nnunetv2:msalehjahromi<br>
 docker push hpcharbor.mdanderson.edu/nnunetv2/nnunetv2:msalehjahromi<br>
-
+```
+#### Image Location:
 hpcharbor.mdanderson.edu/nnunetv2/nnunetv2@sha256:4ab016ba4b356842be74fbf58159480598bfc015c8454339022aa0fcbfdc196d<br>
 
-## running
+#### Important Notes
+- Ensure that nnUNet is installed inside the Docker container as specified in your .py file for proper functionality.(At least how I get it top work!)
+- Use the A100 GPU for training due to compatibility issues with H100 for some PyTorch setups.
+
+
+
+
+
+
+## Running Jobs
+Submit jobs sequentially using the job-runner.sh script:
 ```sh
 job-runner.sh 0_jason.yaml
+
 job-runner.sh 1_pre_preprocessing.yaml
+
 job-runner.sh 2_train0.yaml
 job-runner.sh 2_train1.yaml
 job-runner.sh 2_train2.yaml
 job-runner.sh 2_train3.yaml
 job-runner.sh 2_train4.yaml
+
+job-runner.sh 3_predict.yaml
+
 ```
 
-## PVC (commands)
+## List and describe the PVCs with the following commands:
 ```sh
 kubectl get pvc -n yn-gpu-workload -l k8s-user=msalehjahromi
 kubectl describe pvc msalehjahromi-gpu-rsrch7-home-ip-rsrch -n yn-gpu-workload
 ```
 
-## bashrc
+## Environment Configuration
 ```sh
 export PATH="/rsrch1/ip/msalehjahromi/.kube:$PATH"
 source ~/.bashrc
 ```
 
-## Good K8S Commands
+## Useful Kubernetes (K8s) Commands
+- View jobs:
 ```sh
 kubectl get jobs
+```
+- Switch context:
+```sh
 kubectl config use-context msalehjahromi_yn-gpu-workload@research-prd
+```
+- Delete a job:
+```sh
 kubectl delete job -n yn-gpu-workload msalehjahromi-gpu-nnunetv2
 ```
 
-## yaml A100 vs H100
+## YAML Configurations for Different GPU Types
 ```sh
         "nvidia.com/gpu.machine": "DGXH100"
         "nvidia.com/gpu.machine": "DGXA100-920-23687-2530-000"
@@ -49,14 +72,16 @@ kubectl delete job -n yn-gpu-workload msalehjahromi-gpu-nnunetv2
 nnUNetv2_train dataset_id 3d_fullres num_fold -tr nnUNetTrainer_2000epochs
 ```
 
-## nnUNetv2
+# From nnUNetv2 (Helping to set up)
 I needed to use my docker file, I needed to install torch and nnUNet in my .py file also.<br>
 I needed to use A100, could not use H100 with some pytorch and H100 issue.
 
 This is going to be run on K8S
 
-### 1. setting_up_paths<br>
-    https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/setting_up_paths.md<br>
+##  [Setting Up nnUNet Paths](https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/setting_up_paths.md)
+
+    Directory structure:<br>
+    <br>
     nnUNet_results<br>
     nnUNet_preprocessed<br>
     nnUNet_raw/Dataset101_LungTumor/<br>
@@ -75,8 +100,8 @@ This is going to be run on K8S
         ├── ...<br>
 
 
-### 2. modify the json file for k8s based on '/rsrch7/home/ip_rsrch/wulab/Mori'<br>
-    https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/set_environment_variables.md<br>
+## Modify the json file for k8s based on '/rsrch7/home/ip_rsrch/wulab/Mori'
+    [nnUNet help](https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/set_environment_variables.md) 
 
     ```sh
     RUN pip install nnunetv2
@@ -85,13 +110,14 @@ This is going to be run on K8S
     ENV nnUNet_results="/rsrch7/home/ip_rsrch/wulab/Mori/nnUnet2_Sep2024/nnUNet_results"
     ```
 
-### 3. Training<br>
-    https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/how_to_use_nnunet.md
+## [Training](https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/how_to_use_nnunet.md)
 
-    #### Let's change these
+    #### Verify dataset integrity:
+    ```sh
     nnUNetv2_plan_and_preprocess -d 501 --verify_dataset_integrity
-
-    ####
+    ```
+    
+    #### Train for each fold:
     For FOLD in [0, 1, 2, 3, 4], run:<br>
 
     ```sh
